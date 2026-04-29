@@ -1,0 +1,36 @@
+; ─────────────────────────────────────
+; LOGO LSP Demo — test file
+; ─────────────────────────────────────
+
+; Procedure definition with parameter
+TO SQUARE :size
+  REPEAT 4 [
+    FORWARD :size
+    RIGHT 90
+  ]
+END
+
+; Procedure that calls another procedure
+TO GRID :size :count
+  REPEAT :count [
+    SQUARE :size
+    FORWARD :size
+  ]
+END
+
+; Using MAKE to assign variables
+MAKE "length 100
+MAKE "steps 4
+
+; Valid calls
+SQUARE 100
+GRID 50 4
+
+; ── Error demos ──
+; Undefined procedure — server will show red underline
+UNKNOWNPROC 10
+
+; Undefined variable — server will show red underline
+FORWARD :undefined
+
+
