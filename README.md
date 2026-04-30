@@ -43,44 +43,48 @@ build/libs/logo-lsp.jar
 6. Click **OK** — open any `.logo` file and the server starts automatically
 
 ## Project Layout
+
+```
 src/main/
 ├── antlr/com/logolsp/parser/
 │   └── Logo.g4                        # ANTLR4 grammar — formal definition of LOGO syntax
 └── kotlin/com.logolsp/
-├── Main.kt                        # Entry point — starts the LSP server over stdio
-├── analysis/
-│   ├── DocumentManager.kt         # In-memory store mapping document URI to its text
-│   ├── LogoParserFacade.kt        # Facade over the ANTLR lexer and parser pipeline
-│   └── SemanticAnalyzer.kt        # Two-pass analysis: builds symbol table, emits diagnostics
-├── features/
-│   ├── SemanticTokensProvider.kt  # Produces semantic token data for syntax highlighting
-│   ├── DefinitionProvider.kt      # Resolves go-to-declaration for procedures and variables
-│   └── DiagnosticsProvider.kt    # Converts internal diagnostics to LSP diagnostic objects
-└── server/
-├── LogoLanguageServer.kt      # Declares server capabilities on initialize handshake
-├── LogoTextDocumentService.kt # Handles document events and all incoming LSP requests
-└── LogoWorkspaceService.kt   # Workspace-level events (no-op, required by the protocol)
-
+    ├── Main.kt                        # Entry point — starts the LSP server over stdio
+    ├── analysis/
+    │   ├── DocumentManager.kt         # In-memory store mapping document URI to its text
+    │   ├── LogoParserFacade.kt        # Facade over the ANTLR lexer and parser pipeline
+    │   └── SemanticAnalyzer.kt        # Two-pass analysis: builds symbol table, emits diagnostics
+    ├── features/
+    │   ├── SemanticTokensProvider.kt  # Produces semantic token data for syntax highlighting
+    │   ├── DefinitionProvider.kt      # Resolves go-to-declaration for procedures and variables
+    │   └── DiagnosticsProvider.kt    # Converts internal diagnostics to LSP diagnostic objects
+    └── server/
+        ├── LogoLanguageServer.kt      # Declares server capabilities on initialize handshake
+        ├── LogoTextDocumentService.kt # Handles document events and all incoming LSP requests
+        └── LogoWorkspaceService.kt   # Workspace-level events (no-op, required by the protocol)
+```
 ## How It Works
 
 Every time a document is opened or changed, the server runs this pipeline:
 
+```
 Document text
-│
-▼
+      │
+      ▼
 ANTLR4 Lexer → Token Stream
-│
-▼
+      │
+      ▼
 ANTLR4 Parser → AST
-│
-▼
+      │
+      ▼
 SemanticAnalyzer
-├── Pass 1: collect all definitions → Symbol Table
-└── Pass 2: validate all references → Diagnostics
-│
-┌──────────────────┼────────────┐
-▼                  ▼            ▼
-Highlighting   Definition    Hover
+  ├── Pass 1: collect all definitions → Symbol Table
+  └── Pass 2: validate all references → Diagnostics
+                    │
+       ┌────────────┼────────────┐
+       ▼            ▼            ▼
+ Highlighting   Definition    Hover
+```
 
 The analysis result is cached per document URI. Hover and go-to-declaration
 requests reuse this cached result instead of re-parsing on every call.
